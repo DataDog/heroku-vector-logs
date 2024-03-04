@@ -1,0 +1,65 @@
+sources:
+  # To secure this instance of Vector, set the env vars
+  # LOGPLEX_AUTH_USERNAME and LOGPLEX_AUTH_PASSWORD. For security, do
+  # not enter these values in plaintext below.
+  # You will need to use these when adding a log drain to your apps.
+  # For example:
+  # heroku drains:add https://username:password@appname.herokuapp.com/events
+  heroku:
+    type: heroku_logs
+    address: "0.0.0.0:${PORT}"
+    auth.username: "${LOGPLEX_AUTH_USERNAME}"
+    auth.password: "${LOGPLEX_AUTH_PASSWORD}"
+
+  # Include Vector's internal logs in our output. This is especially
+  # helpful if you are adding or modifying any of the transforms below.
+  vector:
+    type: internal_logs
+
+
+transforms:
+  # Your applications should include the dyno hostname in log message.
+  # You can get the hostname value from the DD_HOSTNAME env var if your
+  # app is running the Datadog Heroku Buildpack.
+  #
+  # If you cannot set the hostname in your logs, include the appname
+  # and this remap step will generate the hostname following the format
+  # used by Datadog. You can get the value of the appname by enabling
+  # the Heroku Dyno Metadata and referencing the HEROKU_APP_NAME env
+  # var. See https://devcenter.heroku.com/articles/dyno-metadata
+  dd_dyno_host:
+    type: remap
+    inputs:
+      - heroku
+    source: |-
+      if !is_null(.appname) && !is_null(.proc_id) {
+        .hostname = to_string!(.appname) + "." + to_string!(.proc_id)
+      }
+
+  # Heroku Logplex splits long logs into 10,000 byte chunks. This
+  # reduce step merges those logs back together.
+  #
+  # Note, this will merge split logs sequentially as received. However,
+  # Heroku does not guarantee that logs are chronologically ordered.
+  # In our testing, split logs are typically ordered correctly, but in
+  # rare cases they may not be and the merge may be out of order.
+  merge_split_logs:
+    type: reduce
+    inputs:
+      - dd_dyno_host
+    group_by:
+      - hostname
+      - proc_id
+      - timestamp
+    merge_strategies:
+      message: concat_raw
+
+
+sinks:
+  # Send our processed Heroku logs and Vector internal logs to Datadog.
+  # Note: you must set your Datadog API key as the env var DD_API_KEY.
+  datadog:
+    type: datadog_logs
+    inputs:
+      - merge_split_logs
+      - vector
