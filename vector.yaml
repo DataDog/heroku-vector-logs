@@ -1,6 +1,6 @@
 sources:
   # To secure this instance of Vector, set the env vars
-  # LOGPLEX_AUTH_USERNAME and LOGPLEX_AUTH_PASSWORD. For security, do
+  # VECTOR_AUTH_USERNAME and VECTOR_AUTH_PASSWORD. For security, do
   # not enter these values in plaintext below.
   # You will need to use these when adding a log drain to your apps.
   # For example:
@@ -8,8 +8,8 @@ sources:
   heroku:
     type: heroku_logs
     address: "0.0.0.0:${PORT}"
-    auth.username: "${LOGPLEX_AUTH_USERNAME}"
-    auth.password: "${LOGPLEX_AUTH_PASSWORD}"
+    auth.username: "${VECTOR_AUTH_USERNAME}"
+    auth.password: "${VECTOR_AUTH_PASSWORD}"
 
   # Include Vector's internal logs in our output. This is especially
   # helpful if you are adding or modifying any of the transforms below.
