@@ -33,7 +33,11 @@ transforms:
       - heroku
     source: |-
       if !is_null(.appname) && !is_null(.proc_id) {
-        .hostname = to_string!(.appname) + "." + to_string!(.proc_id)
+        .hostname, err = to_string(.appname) + "." + to_string(.proc_id)
+
+        if !is_null(err) {
+          log("Unable to set hostname: " + err, level: "error")
+        }
       }
 
   # Heroku Logplex splits long logs into 10,000 byte chunks. This
