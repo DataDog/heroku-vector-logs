@@ -4,11 +4,20 @@ This repo provides an example of how to deploy [Vector](https://vector.dev) to H
 
 ## Running this example
 
-1. Create a new Heroku app named `heroku-vector-logs`:
+1. Clone this repo:
 
    ```shell
+   git clone git@github.com:DataDog/heroku-vector-logs.git
+   ``
+
+1. From inside the git project, create a new Heroku app named `heroku-vector-logs`:
+
+   ```shell
+   cd heroku-vector-logs
    heroku apps:create heroku-vector-logs
    ```
+
+   Note: this will also automatically add a git remote for Heroku that you can deploy to.
 
 1. Set your new app to run containers:
 
