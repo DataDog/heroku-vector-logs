@@ -8,7 +8,7 @@ This repo provides an example of how to deploy [Vector](https://vector.dev) to H
 
    ```shell
    git clone git@github.com:DataDog/heroku-vector-logs.git
-   ``
+   ```
 
 1. From inside the git project, create a new Heroku app named `heroku-vector-logs`:
 
